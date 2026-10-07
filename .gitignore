@@ -1,0 +1,13 @@
+.DS_Store
+**/.env
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+**/.superpowers/
+**/output/
+**/*.db
+**/.next*/
+**/node_modules/
+**/.git
+**/.git.nested/
+**/.git.broken-worktree-pointer

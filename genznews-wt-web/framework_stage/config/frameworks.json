@@ -1,0 +1,18 @@
+{
+  "default": "AIDA",
+  "content_types": {
+    "GENERAL_NEWS": "AIDA",
+    "PROBLEM_FOCUSED": "PAS",
+    "TRANSFORMATION": "BAB",
+    "PERSUASIVE": "4PS",
+    "PRODUCT_LAUNCH": "FAB",
+    "BRAND_STORY": "STORYBRAND",
+    "LONG_FORM": "QUEST"
+  },
+  "niche_overrides": {},
+  "keyword_rules": {
+    "PRODUCT_LAUNCH": ["launches", "unveils", "introduces"],
+    "TRANSFORMATION": ["before and after", "transformed", "turned around"]
+  },
+  "long_form_min_chars": 6000
+}

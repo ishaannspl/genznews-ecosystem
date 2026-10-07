@@ -1,0 +1,431 @@
+@import "tailwindcss";
+
+/* Tokens: see src/lib/tokens.ts. A test checks every hex below appears here. */
+:root {
+  --paper: #f3f5fb;
+  --ink: #1c1f52;
+  --ink-soft: #4a4e7a;
+  --rule: #d9def0;
+  --marker: #ffc531;
+  /* Text on the marker is always the light ink. Light theme: a low stroke
+     under ink text. Dark theme: a full-height fill, so no glyph sits half on
+     dark paper in dark ink. */
+  --marker-text: #1c1f52;
+  --marker-from: 62%;
+
+  --cat-health-wellness-base: #22a06b;
+  --cat-health-wellness-text: #0f6b45;
+  --cat-education-career-base: #3b6bff;
+  --cat-education-career-text: #1f43c7;
+  --cat-entertainment-pop-culture-base: #e0268a;
+  --cat-entertainment-pop-culture-text: #b0156a;
+  --cat-biogas-clean-energy-base: #f26b1d;
+  --cat-biogas-clean-energy-text: #b04a0a;
+  --cat-digital-marketing-social-media-base: #8a4df0;
+  --cat-digital-marketing-social-media-text: #6527c9;
+
+  color-scheme: light;
+}
+
+/* Dark values, used by an explicit choice or by the system preference. */
+:root[data-theme="dark"] {
+  --paper: #0e1030;
+  --ink: #eceefb;
+  --ink-soft: #a8add8;
+  --rule: #2a2e66;
+  --marker: #ffc531;
+  --marker-from: 0%;
+
+  --cat-health-wellness-text: #5bd79f;
+  --cat-education-career-text: #8ca8ff;
+  --cat-entertainment-pop-culture-text: #ff7dbe;
+  --cat-biogas-clean-energy-text: #ff9a5c;
+  --cat-digital-marketing-social-media-text: #be9bff;
+
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0e1030;
+    --ink: #eceefb;
+    --ink-soft: #a8add8;
+    --rule: #2a2e66;
+    --marker: #ffc531;
+    --marker-from: 0%;
+
+    --cat-health-wellness-text: #5bd79f;
+    --cat-education-career-text: #8ca8ff;
+    --cat-entertainment-pop-culture-text: #ff7dbe;
+    --cat-biogas-clean-energy-text: #ff9a5c;
+    --cat-digital-marketing-social-media-text: #be9bff;
+
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-rule: var(--rule);
+  --color-marker: var(--marker);
+  --color-marker-text: var(--marker-text);
+  --color-cat-base: var(--cat-base);
+  --color-cat-text: var(--cat-text);
+  --font-display: var(--font-display);
+  --font-serif: var(--font-reading);
+}
+
+/* Base element styles live in the base layer so Tailwind utilities on an
+   element (for example a heading size) always win over them. */
+@layer base {
+  html {
+    background: var(--paper);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-reading), Georgia, serif;
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  h1 {
+    font-size: clamp(2.25rem, 1.4rem + 3.6vw, 4.5rem);
+    font-weight: 800;
+  }
+  h2 {
+    font-size: clamp(1.375rem, 1.1rem + 1.2vw, 1.75rem);
+  }
+  h3 {
+    font-size: 1.125rem;
+  }
+
+  a {
+    color: inherit;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--ink);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Component styles sit in the components layer: utilities passed through
+   className (spacing, width) still override them. */
+@layer components {
+  /* ------------------------------------------------------------------ */
+  /* Category scope                                                       */
+  /* Any element with data-category exposes --cat-base (fills, spine,     */
+  /* placeholder) and --cat-text (labels on paper). The text variable     */
+  /* follows the theme because it reads the root token at use.            */
+  /* ------------------------------------------------------------------ */
+  [data-category="health-wellness"] {
+    --cat-base: var(--cat-health-wellness-base);
+    --cat-text: var(--cat-health-wellness-text);
+  }
+  [data-category="education-career"] {
+    --cat-base: var(--cat-education-career-base);
+    --cat-text: var(--cat-education-career-text);
+  }
+  [data-category="entertainment-pop-culture"] {
+    --cat-base: var(--cat-entertainment-pop-culture-base);
+    --cat-text: var(--cat-entertainment-pop-culture-text);
+  }
+  [data-category="biogas-clean-energy"] {
+    --cat-base: var(--cat-biogas-clean-energy-base);
+    --cat-text: var(--cat-biogas-clean-energy-text);
+  }
+  [data-category="digital-marketing-social-media"] {
+    --cat-base: var(--cat-digital-marketing-social-media-base);
+    --cat-text: var(--cat-digital-marketing-social-media-text);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Story spine: the 4px category bar on the left of every row.          */
+  /* ------------------------------------------------------------------ */
+  /* ---------------------------------------------------------------- */
+  /* Long tokens: URLs, hashtags or a 200-character word must wrap      */
+  /* instead of forcing horizontal scroll. "anywhere" also lowers the   */
+  /* min-content width, so it works inside flex and grid items.         */
+  /* ---------------------------------------------------------------- */
+  .wrap-anywhere {
+    overflow-wrap: anywhere;
+    min-width: 0;
+  }
+
+  .spine {
+    display: block;
+    width: 4px;
+    align-self: stretch;
+    background: var(--cat-base);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Stretched link: one anchor (one tab stop) makes the whole row        */
+  /* clickable. The row needs position: relative. Focus is drawn on the   */
+  /* stretched area so keyboard users see the full target.                */
+  /* ------------------------------------------------------------------ */
+  /* No utility class sets the decoration: a `no-underline` utility would win over the hover
+     rule below (utilities sit in a later layer) and the row would never underline. */
+  .stretched-link {
+    text-decoration-line: none;
+  }
+  .stretched-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .stretched-link:focus-visible {
+    outline: none;
+  }
+  .stretched-link:focus-visible::after {
+    outline: 3px solid var(--ink);
+    outline-offset: 2px;
+  }
+  .story-row:hover .stretched-link,
+  .stretched-link:focus-visible {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.15em;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Marker stroke: the highlighter behind each line of the three-line    */
+  /* read. Clone keeps the stroke on every wrapped line fragment.          */
+  /* ------------------------------------------------------------------ */
+  .marker {
+    overflow-wrap: anywhere;
+    color: var(--marker-text);
+    background-image: linear-gradient(transparent var(--marker-from), var(--marker) var(--marker-from));
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+    padding: 0 0.2em;
+    margin: 0 -0.2em;
+  }
+
+  .three-line {
+    overflow-wrap: anywhere;
+    min-width: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+  }
+  .three-line[data-size="lg"] {
+    gap: 0.55em;
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-weight: 600;
+    font-size: clamp(1.375rem, 1.05rem + 1.4vw, 2.125rem);
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+  .three-line[data-size="sm"] {
+    gap: 0.6em;
+    font-weight: 600;
+    font-size: clamp(1.125rem, 1.08rem + 0.2vw, 1.25rem);
+    line-height: 1.5;
+  }
+
+  /* The one motion moment: lines reveal in order, 90ms apart, once. */
+  @keyframes three-line-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(0.4em);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  .three-line[data-animate="true"] > li {
+    animation: three-line-reveal 320ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(var(--i, 0) * 90ms);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .three-line[data-animate="true"] > li {
+      animation: none;
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Cover placeholder: category fill with the short name set large,      */
+  /* bleeding off the bottom-left. Sized in container units so it works   */
+  /* from a row thumbnail up to the lead cover.                           */
+  /* ------------------------------------------------------------------ */
+  .cover {
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+    container-type: inline-size;
+    background: var(--cat-base);
+  }
+  .cover-placeholder {
+    position: absolute;
+    inset: 0;
+    background: var(--cat-base);
+  }
+  .cover-placeholder > span {
+    position: absolute;
+    left: -0.05em;
+    bottom: -0.1em;
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.045em;
+    white-space: nowrap;
+    color: var(--paper);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Article body: reading typography for sanitized markdown.             */
+  /* ------------------------------------------------------------------ */
+  .article-body {
+    overflow-wrap: anywhere;
+    min-width: 0;
+    max-width: 66ch;
+    font-size: 1.125rem;
+    line-height: 1.7;
+  }
+  .article-body > * {
+    margin: 0;
+  }
+  .article-body > * + * {
+    margin-top: 1.1em;
+  }
+  .article-body > h2,
+  .article-body > h3 {
+    margin-top: 1.9em;
+  }
+  .article-body > h2 + *,
+  .article-body > h3 + * {
+    margin-top: 0.6em;
+  }
+  .article-body h2 {
+    font-size: clamp(1.375rem, 1.2rem + 0.8vw, 1.75rem);
+    font-weight: 800;
+  }
+  .article-body h3 {
+    font-size: 1.25rem;
+  }
+  .article-body a {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+  .article-body a:hover {
+    text-decoration-thickness: 2px;
+  }
+  .article-body ul,
+  .article-body ol {
+    padding-left: 1.4em;
+  }
+  .article-body ul {
+    list-style: disc;
+  }
+  .article-body ol {
+    list-style: decimal;
+  }
+  .article-body li + li {
+    margin-top: 0.4em;
+  }
+  .article-body li::marker {
+    color: var(--ink-soft);
+  }
+  .article-body blockquote {
+    border-left: 4px solid var(--rule);
+    padding-left: 1em;
+    color: var(--ink-soft);
+  }
+  .article-body strong {
+    font-weight: 600;
+  }
+  .article-body a,
+  .article-body code {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+  .article-body code {
+    font-size: 0.9em;
+    background: var(--rule);
+    padding: 0.1em 0.3em;
+  }
+  .article-body hr {
+    border: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .article-body table {
+    display: block;
+    overflow-x: auto;
+    border-collapse: collapse;
+    font-size: 1rem;
+  }
+  .article-body th,
+  .article-body td {
+    border-bottom: 1px solid var(--rule);
+    padding: 0.4em 0.8em 0.4em 0;
+    text-align: left;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Page furniture shared by the routes.                                 */
+  /* ------------------------------------------------------------------ */
+  /* Section label: "Today in three lines", "Latest", lane headings.      */
+  .section-label {
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-size: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+  /* Title of a list or utility page; the lead and article headlines are bigger. */
+  .page-title {
+    font-size: clamp(2.25rem, 1.7rem + 2.2vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+  }
+  /* Plain text link with a 44px target. */
+  .text-link {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-weight: 700;
+    text-decoration-line: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.2em;
+  }
+  .text-link:hover {
+    text-decoration-thickness: 3px;
+  }
+}
