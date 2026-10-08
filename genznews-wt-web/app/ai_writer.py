@@ -151,9 +151,9 @@ class GeminiUnavailable(RuntimeError):
     """Gemini stayed overloaded or rate limited through every retry."""
 
 
-_BACKOFF_SECONDS = (5, 15, 30, 60)
-# With OpenAI as a fallback there is no point waiting a full minute on Gemini.
-_FAST_BACKOFF_SECONDS = (3, 8)
+_BACKOFF_SECONDS = (2, 4, 8)
+# With OpenAI as a fallback there is no point waiting on Gemini.
+_FAST_BACKOFF_SECONDS = (2, 4)
 
 
 def _is_overload(exc: Exception) -> bool:

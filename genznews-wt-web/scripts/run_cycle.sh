@@ -17,6 +17,6 @@ export SUPABASE_KEY="" NEXT_PUBLIC_SUPABASE_URL="" NEXT_PUBLIC_SUPABASE_PUBLISHA
 
 echo "=== $(date '+%Y-%m-%d %H:%M:%S') cycle start ==="
 "$PY" run_pipeline.py --per-niche "${PER_NICHE:-3}"
-"$PY" run_framework_stage.py
+"$PY" run_framework_stage.py --limit "${RUN_LIMIT:-15}"
 "$PY" -m framework_stage.publish
 echo "=== $(date '+%Y-%m-%d %H:%M:%S') cycle done ==="
