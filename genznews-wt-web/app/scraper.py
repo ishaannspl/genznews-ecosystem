@@ -33,6 +33,7 @@ class ScrapedArticle:
     author: str | None
     published_at: str | None
     content: str
+    image_url: str | None = None
 
 
 def _validate_url(url: str) -> str:
@@ -74,6 +75,23 @@ def _metadata_value(metadata: Any, name: str) -> str | None:
     return value or None
 
 
+_SESSION: requests.Session | None = None
+
+
+def _get_session() -> requests.Session:
+    global _SESSION
+    if _SESSION is None:
+        _SESSION = requests.Session()
+    return _SESSION
+
+
+def _extract_og_image(html: str) -> str | None:
+    m = re.search(r'<meta\s+[^>]*?(?:property|name)=["\']og:image["\'][^>]*?content=["\']([^"\']+)["\']', html, re.IGNORECASE)
+    if not m:
+        m = re.search(r'<meta\s+[^>]*?content=["\']([^"\']+)["\'][^>]*?(?:property|name)=["\']og:image["\']', html, re.IGNORECASE)
+    return m.group(1).strip() if m else None
+
+
 def scrape_article(url: str) -> dict[str, Any]:
     """Download one article and return cleaned text plus available metadata."""
     settings = get_settings()
@@ -113,6 +131,7 @@ def scrape_article(url: str) -> dict[str, Any]:
         )
 
     metadata = trafilatura.extract_metadata(response.text)
+    image_url = _metadata_value(metadata, "image") or _extract_og_image(response.text)
     result = ScrapedArticle(
         url=normalized_url,
         domain=domain,
@@ -120,5 +139,6 @@ def scrape_article(url: str) -> dict[str, Any]:
         author=_metadata_value(metadata, "author"),
         published_at=_metadata_value(metadata, "date"),
         content=content,
+        image_url=image_url,
     )
     return asdict(result)

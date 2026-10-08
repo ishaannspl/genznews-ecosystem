@@ -40,6 +40,15 @@ _REDIRECT_STATUSES = frozenset({301, 302, 303, 307, 308})
 _HTML_TYPES = ("text/html", "application/xhtml+xml")
 _BLOCKED_SUFFIXES = (".local", ".internal", ".localhost")
 
+_IMG_SESSION: requests.Session | None = None
+
+
+def _get_img_session() -> requests.Session:
+    global _IMG_SESSION
+    if _IMG_SESSION is None:
+        _IMG_SESSION = requests.Session()
+    return _IMG_SESSION
+
 
 def _address_is_public(raw: str) -> bool:
     try:
@@ -158,10 +167,12 @@ def _validated_image_url(candidate: str | None, page_url: str) -> str | None:
 def fetch_og_image(
     url: str,
     *,
-    get: Callable[..., Any] = requests.get,
+    get: Callable[..., Any] | None = None,
     resolver: Callable[..., Any] = socket.getaddrinfo,
 ) -> str | None:
     """Return the page's og:image URL, or None. Never raises for network/parse errors."""
+    if get is None:
+        get = _get_img_session().get
     current = url
     try:
         for _ in range(MAX_REDIRECTS + 1):

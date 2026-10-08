@@ -9,6 +9,7 @@ across the 5 target PRD niches.
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import io
 import json
 import os
@@ -210,7 +211,7 @@ def run_pipeline(articles_per_niche: int = 1, target_niches: list[str] | None = 
     selected_niches = target_niches or list(niches.keys())
     completed_articles: list[dict[str, Any]] = []
     since = fetch_since(os.environ)
-    delay = float(os.getenv("GEMINI_DELAY_SECONDS", "8") or 8)
+    delay = float(os.getenv("GEMINI_DELAY_SECONDS", "1.5") or 1.5)
     overloaded_in_a_row = 0
     gave_up = False
 
@@ -239,16 +240,26 @@ def run_pipeline(articles_per_niche: int = 1, target_niches: list[str] | None = 
 
         niche_done = 0
 
-        for feed_url in feeds:
+        def _fetch_feed(url: str) -> tuple[str, Any]:
+            try:
+                return url, feedparser.parse(url)
+            except Exception as e:
+                print(f"  [x] Failed to read feed {url}: {e}")
+                return url, None
+
+        parsed_feeds: list[tuple[str, Any]] = []
+        if feeds:
+            max_w = min(len(feeds), 4)
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_w) as ex:
+                parsed_feeds = list(ex.map(_fetch_feed, feeds))
+
+        for feed_url, feed in parsed_feeds:
             if niche_done >= articles_per_niche:
                 break
+            if not feed:
+                continue
 
             print(f"\n  Checking RSS: {feed_url}")
-            try:
-                feed = feedparser.parse(feed_url)
-            except Exception as e:
-                print(f"  [x] Failed to read feed {feed_url}: {e}")
-                continue
 
             # Newest first: each run takes today's stories, then works backward through older
             # unprocessed ones. Entries without a date sort last.
