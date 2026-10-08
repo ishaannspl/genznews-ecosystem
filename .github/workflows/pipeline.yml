@@ -67,6 +67,8 @@ jobs:
             [ -n "$OPENAI_API_KEY" ] && echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> .env
             echo "AUTO_PUBLISH_ENABLED=$AUTO_PUBLISH_ENABLED" >> .env
             echo "AUTO_PUBLISH_MIN_CONFIDENCE=$AUTO_PUBLISH_MIN_CONFIDENCE" >> .env
+            echo "AUTO_PUBLISH_NICHES=health_wellness,education_career,entertainment_pop_culture,biogas_clean_energy,digital_marketing_social_media" >> .env
+            echo "AUTO_PUBLISH_ALL=true" >> .env
           fi
 
       - name: Run pipeline cycle

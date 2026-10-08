@@ -18,8 +18,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def publish_approved(client: Any, now: datetime) -> int:
-    rows = client.table("site_articles").select("id,published_at,created_at").eq("status", "APPROVED").execute().data or []
+def publish_by_status(client: Any, now: datetime, status: str) -> int:
+    rows = client.table("site_articles").select("id,published_at,created_at").eq("status", status).execute().data or []
     for row in rows:
         client.table("site_articles").update(
             {
@@ -32,6 +32,10 @@ def publish_approved(client: Any, now: datetime) -> int:
     return len(rows)
 
 
+def publish_approved(client: Any, now: datetime) -> int:
+    return publish_by_status(client, now, "APPROVED")
+
+
 def main() -> int:
     url = os.getenv("SUPABASE_URL", "").strip()
     key = os.getenv("SUPABASE_SERVICE_KEY", "").strip()
@@ -40,8 +44,12 @@ def main() -> int:
         return 2
     import supabase
 
-    count = publish_approved(supabase.create_client(url, key), datetime.now(UTC))
-    print(f"published {count} approved story(ies)")
+    client = supabase.create_client(url, key)
+    now = datetime.now(UTC)
+    count = publish_approved(client, now)
+    if os.getenv("AUTO_PUBLISH_ALL", "true").lower() in ("1", "true", "yes", "on"):
+        count += publish_by_status(client, now, "REVIEW_REQUIRED")
+    print(f"published {count} story(ies)")
     return 0
 
 
