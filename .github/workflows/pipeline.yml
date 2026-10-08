@@ -1,0 +1,76 @@
+name: GenZNews Pipeline
+
+on:
+  schedule:
+    # GitHub Actions cron schedules run in UTC.
+    # Indian Standard Time (IST) is UTC + 5:30:
+    #   8:00 AM IST  = 02:30 UTC
+    #   5:00 PM IST  = 11:30 UTC
+    - cron: "30 2 * * *"  # 8:00 AM IST (02:30 UTC)
+    - cron: "30 11 * * *" # 5:00 PM IST (11:30 UTC)
+    # Note: If you meant UTC time instead of IST:
+    # - cron: "0 8 * * *"   # 8:00 AM UTC
+    # - cron: "0 17 * * *"  # 5:00 PM UTC
+
+  workflow_dispatch: {} # Allows manual trigger from GitHub Actions tab anytime
+
+concurrency:
+  group: genznews-pipeline
+  cancel-in-progress: false
+
+jobs:
+  cycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: genznews-wt-web
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: genznews-wt-web/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Cache SQLite articles database
+        uses: actions/cache@v4
+        with:
+          path: genznews-wt-web/articles.db
+          key: articles-db-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: |
+            articles-db-${{ runner.os }}-
+
+      - name: Configure environment variables
+        env:
+          PIPELINE_ENV: ${{ secrets.PIPELINE_ENV }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          AUTO_PUBLISH_ENABLED: ${{ vars.AUTO_PUBLISH_ENABLED || 'true' }}
+          AUTO_PUBLISH_MIN_CONFIDENCE: ${{ vars.AUTO_PUBLISH_MIN_CONFIDENCE || '0.85' }}
+        run: |
+          if [ -n "$PIPELINE_ENV" ]; then
+            printf '%s\n' "$PIPELINE_ENV" > .env
+          else
+            [ -n "$GEMINI_API_KEY" ] && echo "GEMINI_API_KEY=$GEMINI_API_KEY" >> .env
+            [ -n "$SUPABASE_URL" ] && echo "SUPABASE_URL=$SUPABASE_URL" >> .env
+            [ -n "$SUPABASE_SERVICE_KEY" ] && echo "SUPABASE_SERVICE_KEY=$SUPABASE_SERVICE_KEY" >> .env
+            [ -n "$OPENAI_API_KEY" ] && echo "OPENAI_API_KEY=$OPENAI_API_KEY" >> .env
+            echo "AUTO_PUBLISH_ENABLED=$AUTO_PUBLISH_ENABLED" >> .env
+            echo "AUTO_PUBLISH_MIN_CONFIDENCE=$AUTO_PUBLISH_MIN_CONFIDENCE" >> .env
+          fi
+
+      - name: Run pipeline cycle
+        env:
+          PY: python
+          PER_NICHE: "3"
+        run: bash scripts/run_cycle.sh

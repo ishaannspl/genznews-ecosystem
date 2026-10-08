@@ -12,3 +12,11 @@ app.zip
 output/latest_batch.json
 output/*.json
 .framework_stage.lock
+
+# build output
+web/.next*/
+web/node_modules/
+web/test-results/
+web/tsconfig.tsbuildinfo
+node_modules/
+.superpowers/

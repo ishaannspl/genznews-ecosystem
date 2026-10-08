@@ -13,6 +13,10 @@ import sys
 from datetime import UTC, datetime
 from typing import Any
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 def publish_approved(client: Any, now: datetime) -> int:
     rows = client.table("site_articles").select("id,published_at,created_at").eq("status", "APPROVED").execute().data or []
