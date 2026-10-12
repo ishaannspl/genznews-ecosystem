@@ -1,0 +1,38 @@
+{
+  "default": "AIDA",
+  "content_types": {
+    "GENERAL_NEWS": "AIDA",
+    "PROBLEM_FOCUSED": "PAS",
+    "TRANSFORMATION": "BAB",
+    "PRODUCT_LAUNCH": "FAB",
+    "PERSUASIVE": "PPPP",
+    "BRAND_STORY": "SSS",
+    "LONG_FORM": "OPEN_LOOPS",
+    "LISTICLE": "4US",
+    "EXPLAINER": "4WS",
+    "FACT_BRIEF": "4CS"
+  },
+  "content_type_guide": {
+    "GENERAL_NEWS": "a standard report with no stronger signal",
+    "PROBLEM_FOCUSED": "about a problem, risk, failure, scam, shortage or backlash",
+    "TRANSFORMATION": "about a change over time, a turnaround, before versus after",
+    "PRODUCT_LAUNCH": "a launch, release, new feature, new scheme or new policy",
+    "PERSUASIVE": "a campaign, drive, sign-up or trend with evidence and a call to act",
+    "BRAND_STORY": "a profile of a person, founder, creator or brand",
+    "LONG_FORM": "a very long source text (decided by length, not by you)",
+    "LISTICLE": "a list, tips, ranking or roundup",
+    "EXPLAINER": "a how-to, what you need to know, eligibility or scheme guide",
+    "FACT_BRIEF": "a short factual item: announcement, result or single data point"
+  },
+  "niche_overrides": {},
+  "keyword_rules": {
+    "LISTICLE": ["top 5", "top 10", "best of", "ways to", "tips to", "things to know", "ranked"],
+    "EXPLAINER": ["explained", "how to", "what you need to know", "everything you need to know", "eligibility", "step-by-step"],
+    "PRODUCT_LAUNCH": ["launches", "unveils", "introduces", "rolls out", "releases"],
+    "TRANSFORMATION": ["before and after", "transformed", "turned around", "comeback"],
+    "BRAND_STORY": ["founder story", "profile:", "journey of", "how she built", "how he built"],
+    "PROBLEM_FOCUSED": ["scam", "warns", "crisis", "shortage", "outbreak", "backlash"],
+    "FACT_BRIEF": ["results declared", "announced today", "notification out"]
+  },
+  "long_form_min_chars": 6000
+}

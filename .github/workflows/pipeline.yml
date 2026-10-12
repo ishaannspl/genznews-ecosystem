@@ -22,6 +22,9 @@ jobs:
   cycle:
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: genznews-wt-web
 
     steps:
       - name: Checkout repository
@@ -36,7 +39,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          cache-dependency-glob: "requirements.txt"
+          cache-dependency-glob: "genznews-wt-web/requirements.txt"
 
       - name: Install dependencies
         run: uv pip install -r requirements.txt --system
@@ -44,7 +47,7 @@ jobs:
       - name: Cache SQLite articles database
         uses: actions/cache@v4
         with:
-          path: articles.db
+          path: genznews-wt-web/articles.db
           key: articles-db-${{ runner.os }}-${{ github.run_id }}
           restore-keys: |
             articles-db-${{ runner.os }}-

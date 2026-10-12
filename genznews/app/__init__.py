@@ -1,0 +1,1 @@
+"""AajKiJanta AI application package."""
