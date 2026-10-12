@@ -1,0 +1,54 @@
+name: Sync from Developer A's repo
+
+# Copies the latest code from Developer A's repo into this repo. Vercel is connected to this
+# repo, so each sync that changes something triggers a deployment.
+# This repo is a mirror: edits made directly here are overwritten by the next sync.
+on:
+  schedule:
+    - cron: "*/10 * * * *" # about every 10 minutes (GitHub may delay it a few minutes)
+  workflow_dispatch: {} # "Run workflow" button for an immediate sync
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-upstream
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      UPSTREAM_REPO: nuform-ujjwal/GenzNews # Developer A's repo
+      UPSTREAM_BRANCH: main
+    steps:
+      - name: Check out this repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.SYNC_TOKEN }}
+
+      - name: Copy the latest code from Developer A's repo
+        env:
+          SYNC_TOKEN: ${{ secrets.SYNC_TOKEN }}
+        run: |
+          git clone --depth 1 --branch "$UPSTREAM_BRANCH" \
+            "https://x-access-token:${SYNC_TOKEN}@github.com/${UPSTREAM_REPO}.git" "$RUNNER_TEMP/upstream"
+          echo "UP_SHA=$(git -C "$RUNNER_TEMP/upstream" rev-parse --short HEAD)" >> "$GITHUB_ENV"
+          # Make this repo's files match upstream. The .github folder (this workflow and pipeline.yml) is
+          # excluded so it is never deleted or overwritten.
+          rsync -a --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            "$RUNNER_TEMP/upstream/" ./
+
+      - name: Commit and push if anything changed
+        run: |
+          git config user.name "${{ github.repository_owner }}"
+          git config user.email "${{ github.repository_owner_id }}+${{ github.repository_owner }}@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "Already up to date."
+            exit 0
+          fi
+          git commit -m "Sync from ${UPSTREAM_REPO}@${UP_SHA}"
+          git push
