@@ -1,18 +1,17 @@
 name: GenZNews Pipeline
 
 on:
-  schedule:
-    # GitHub Actions cron schedules run in UTC.
-    # Indian Standard Time (IST) is UTC + 5:30:
-    #   8:00 AM IST  = 02:30 UTC
-    #   5:00 PM IST  = 11:30 UTC
-    - cron: "30 2 * * *"  # 8:00 AM IST (02:30 UTC)
-    - cron: "30 11 * * *" # 5:00 PM IST (11:30 UTC)
-    # Note: If you meant UTC time instead of IST:
-    # - cron: "0 8 * * *"   # 8:00 AM UTC
-    # - cron: "0 17 * * *"  # 5:00 PM UTC
-
-  workflow_dispatch: {} # Allows manual trigger from GitHub Actions tab anytime
+  # Runs only when new code lands on main (for example after the sync from Developer A's repo).
+  push:
+    branches: [main]
+    paths:
+      - "genznews-wt-web/app/**"
+      - "genznews-wt-web/framework_stage/**"
+      - "genznews-wt-web/scripts/**"
+      - "genznews-wt-web/run_*.py"
+      - "genznews-wt-web/requirements.txt"
+      - "genznews-wt-web/sources.json"
+  workflow_dispatch: {} # "Run workflow" button for a manual run
 
 concurrency:
   group: genznews-pipeline
