@@ -6,6 +6,8 @@ name: Sync from Developer A's repo
 on:
   schedule:
     - cron: "*/10 * * * *" # about every 10 minutes (GitHub may delay it a few minutes)
+  repository_dispatch:
+    types: [upstream-updated] # sent by Developer A's repo the moment he pushes
   workflow_dispatch: {} # "Run workflow" button for an immediate sync
 
 permissions:
